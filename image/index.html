@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dynamic Sidebar and Content Area</title>
+  <style>
+    /* Styles for cards */
+    .card {
+      cursor: pointer;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    /* Styles for the modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+    .modal-content {
+      background-color: #fff;
+      width: 300px;
+      padding: 20px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .modal-content input[type="text"] {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    .modal-content button {
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      cursor: pointer;
+    }
+    .expand-button {
+      display: none;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="sidebar">
+    <!-- Search input for the sidebar -->
+    <input type="text" id="searchInput" placeholder="Search...">
+    
+    <!-- Dummy data cards for the sidebar -->
+    <div class="card" data-card-id="card1">
+      <h3>Card 1</h3>
+      <p>This is some dummy data for Card 1.</p>
+    </div>
+
+    <div class="card" data-card-id="card2">
+      <h3>Card 2</h3>
+      <p>This is some dummy data for Card 2.</p>
+    </div>
+
+    <div class="card" data-card-id="card3">
+      <h3>Card 3</h3>
+      <p>This is some dummy data for Card 3.</p>
+    </div>
+
+    <!-- Add more cards here if needed -->
+
+  </div>
+
+  <!-- Content area -->
+  <div id="content">
+    <!-- Search input for the content area -->
+    <input type="text" id="contentSearchInput" placeholder="Search...">
+    
+    <!-- Expand button -->
+    <button id="expandButton" class="expand-button">Expand</button>
+
+    <!-- Nested dummy data for the content area (data2) -->
+    <div id="nestedData">
+      <!-- Data for Card 1 -->
+      <div data-card-id="card1">
+        <h3>Nested Data for Card 1</h3>
+        <p>This is some nested dummy data for Card 1.</p>
+      </div>
+
+      <!-- Data for Card 2 -->
+      <div data-card-id="card2">
+        <h3>Nested Data for Card 2</h3>
+        <p>This is some nested dummy data for Card 2.</p>
+      </div>
+
+      <!-- Data for Card 3 -->
+      <div data-card-id="card3">
+        <h3>Nested Data for Card 3</h3>
+        <p>This is some nested dummy data for Card 3.</p>
+      </div>
+
+      <!-- Add more nested data here if needed -->
+
+    </div>
+  </div>
+
+  <!-- Modal for adding new cards -->
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <h3>Add New Card</h3>
+      <input type="text" id="newCardTitle" placeholder="Card Title">
+      <textarea id="newCardContent" placeholder="Card Content"></textarea>
+      <button id="addCardButton">Add Card</button>
+    </div>
+  </div>
+
+  <script>
+    const sidebar = document.getElementById('sidebar');
+    const content = document.getElementById('content');
+    const cards = document.getElementsByClassName('card');
+    const nestedData = document.getElementById('nestedData');
+    const expandButton = document.getElementById('expandButton');
+    const modal = document.getElementById('modal');
+    const addCardButton = document.getElementById('addCardButton');
+    const newCardTitle = document.getElementById('newCardTitle');
+    const newCardContent = document.getElementById('newCardContent');
+    const searchInput = document.getElementById('searchInput');
+    const contentSearchInput = document.getElementById('contentSearchInput');
+
+    // Function to dynamically populate the content area based on the selected card
+    function populateContentArea(cardId) {
+      const nestedDataItems = nestedData.children;
+
+      for (const item of nestedDataItems) {
+        if (item.dataset.cardId === cardId) {
+          content.innerHTML = item.outerHTML;
+          return;
+        }
+      }
+    }
+
+    // Event listener for card clicks
+    sidebar.addEventListener('click', (event) => {
+      const clickedCard = event.target.closest('.card');
+      if (clickedCard) {
+        const cardId = clickedCard.dataset.cardId;
+        populateContentArea(cardId);
+        expandButton.style.display = 'block';
+      }
+    });
+
+    // Event listener for the expand button
+    expandButton.addEventListener('click', () => {
+      content.innerHTML = nestedData.innerHTML;
+      expandButton.style.display = 'none';
+    });
+
+    // Event listener for the search input in the sidebar
+    searchInput.addEventListener('input', function() {
+      const searchTerm = searchInput.value.toLowerCase();
+
+      for (const card of cards) {
+        const cardText = card.innerText.toLowerCase();
+        if (cardText.includes(searchTerm)) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      }
+    });
+
+    // Event listener for the search input in the content area
+    contentSearchInput.addEventListener('input', function() {
+      const searchTerm = contentSearchInput.value.toLowerCase();
+      const contentItems = nestedData.children;
+
+      for (const item of contentItems) {
+        const itemText = item.innerText.toLowerCase();
+        if (itemText.includes(searchTerm)) {
+          item.style.display = 'block';
+        } else {
+          item.style.display = 'none';
+        }
+      }
+    });
+
+    // Event listener for the add card button in the modal
+    addCardButton.addEventListener('click', () => {
+      const newCard = document.createElement('div');
+      newCard.className = 'card';
+      newCard.setAttribute('data-card-id', 'newCard');
+      newCard.innerHTML = `
+        <h3>${newCardTitle.value}</h3>
+        <p>${newCardContent.value}</p>
+      `;
+      sidebar.insertBefore(newCard, nestedData);
+      modal.style.display = 'none';
+      newCardTitle.value = '';
+      newCardContent.value = '';
+    });
+  </script>
+</body>
+</html>
